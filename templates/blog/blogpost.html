@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}post{% endblock title %}
+{% block body %}
+
+{% load humanize %}
+<div class="container my-5">
+  <article class="blog-post">
+    <h2 class="blog-post-title">{{post.title}}</h2>
+    <p class="blog-post-meta">{{post.timeStamp}}&nbsp<a href="/about/{{post.author}}">{{post.author}}</a> (<span>{{post.views}} views</span>) </p>
+
+    <p>{{post.content|safe}}</p>
+    <hr>
+  </article>
+</div>
+
+
+<div class="container">
+  <h3>Comments({{comments.count}})</h3>
+  <div class="my-2">
+    {% if user.is_authenticated %}
+    <form action="/blog/postComment/" method="post" class="my-5">{% csrf_token %}
+      <div class="mb-3">
+        <label for="comment" class="form-label">Post Comment</label>
+        <input type="text" class="form-control" name="comment" placeholder="enter comment here"
+          aria-describedby="emailHelp">
+      </div>
+      <input type="hidden" name='postSno' value="{{post.sno}}">
+      <input type="hidden" name="parentSno" value="">
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    {% else %}
+    <p>Please login to post a comment....</p>
+    {% endif %} 
+  </div>
+  {% for comment in comments %}
+  <hr>
+  <div class="row my-3">
+    <img src="/static/img/user.png" alt="" style="width: 6%;">
+    <div class="col-md-11 "><b>{{comment.user.username}}</b><span style="font-size: 12px;"><i> {{comment.timestamp|naturaltime }}</i></span>
+      <div>{{comment.comment}}</div>
+    </div>
+  </div>
+  
+  <hr>
+  {% endfor %}
+</div>
+
+
+<h2 class="container">Suggetions :</h2>
+{% for item in subposts %}
+<div class="container my-3">
+  <div class="row no-gutters border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 my-4 position-relative">
+    <div class="col p-4 d-flex flex-column position-static">
+      <strong class="d-inline-block mb-2 text-primary">Article by {{item.author}}</strong>
+      <h3 class="mb-0">{{item.title}}</h3>
+      <div class="mb-1 text-muted">{{item.timeStamp}}</div>
+      <p class="card-text mb-auto">{{item.content |safe| truncatechars:200}}</p>
+      <div class="my-2">
+        <a href="/blog/{{item.slug}}" role="button" class="btn btn-primary">Continue reading</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+{% endblock body %}
